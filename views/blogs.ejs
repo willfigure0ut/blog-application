@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Blogify - All Blogs</title>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-gray-800">
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <a href="#" class="text-white font-bold text-xl">Blogify</a>
+              </div>
+              <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                  <a href="/" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                  <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">About</a>
+                  <a href="/blogs" id="postslink" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Posts</a>
+                  <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:block">
+              <div class="ml-4 flex items-center md:ml-6">
+                <a href="/auth/logout" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Logout</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+       
+        <div id="mobileMenu" class="hidden md:hidden">
+      
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">All Blogs</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% blogs.forEach(blog => { %>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer blog-card" data-blog-id="<%= blog._id %>">
+                    <img src="<%= blog.thumbnail %>" alt="<%= blog.title %>" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h2 class="text-xl font-semibold mb-2"><%= blog.title %></h2>
+                        <p class="text-gray-600 truncate"><%= blog.content.substring(0, 100) %>...</p>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </main>
+
+    
+    <div id="blogModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div id="modalContent"></div>
+            <div class="text-right mt-4">
+                <button id="closeModal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenu = document.getElementById('mobileMenu');
+        const toggleMobileMenu = document.getElementById('toggleMobileMenu');
+      
+        toggleMobileMenu.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+        });
+
+        // Blog modal functionality
+        const blogCards = document.querySelectorAll('.blog-card');
+        const blogModal = document.getElementById('blogModal');
+        const modalContent = document.getElementById('modalContent');
+        const closeModal = document.getElementById('closeModal');
+
+        blogCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const blogId = card.getAttribute('data-blog-id');
+                fetch(`/api/blog/${blogId}`)
+                    .then(response => response.json())
+                    .then(blog => {
+                        modalContent.innerHTML = `
+                            <h2 class="text-2xl font-bold mb-4">${blog.title}</h2>
+                            <img src="${blog.thumbnail}" alt="${blog.title}" class="w-full h-64 object-cover mb-4">
+                            <p class="text-gray-700">${blog.content}</p>
+                        `;
+                        blogModal.classList.remove('hidden');
+                    });
+            });
+        });
+
+        closeModal.addEventListener('click', () => {
+            blogModal.classList.add('hidden');
+        });
+
+        
+    </script>
+</body>
+</html>
